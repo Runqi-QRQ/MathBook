@@ -200,4 +200,4 @@ If you find **MathBook** useful for your your research and applications, please 
 
 ## 📞 Contact
 
-For any questions or feedback, please reach out to us at [qrq@bupt.edu.cn](qrq@bupt.edu.cn) or [qiunatan@bupt.edu.cn(qiunatan@bupt.edu.cn)].
+For any questions or feedback, please reach out to us at [qrq@bupt.edu.cn](qrq@bupt.edu.cn) or [qiunatan@bupt.edu.cn](qiunatan@bupt.edu.cn).
