@@ -30,14 +30,21 @@
   **[2024.7.2]** Our project homepage can be accessed at https://we-math.github.io/.
 
 
-## Outlines
-- [📣 News](https://github.com/We-Math/We-Math/blob/main/README.md#-news-)
-- [💡 Overview](https://github.com/We-Math/We-Math/blob/main/README.md#-about-we-math)
-- [🏆 Leaderboard on We-Math 🏆](https://github.com/We-Math/We-Math/blob/main/README.md#-leaderboard-on-we-math-)
-- [📝 Evaluation Piplines on We-Math](https://github.com/We-Math/We-Math/blob/main/README.md#-evaluation-piplines-on-we-math)
-- [📊 We-Math Dataset](https://github.com/We-Math/We-Math/blob/main/README.md#-we-math-dataset)
-- [📜 License](https://github.com/We-Math/We-Math/blob/main/README.md#-license)
-- [🤝 Contributors](https://github.com/We-Math/We-Math/blob/main/README.md#-contributors)
+## Table of Contents
+- [Overview](#-overview)
+- [Quick Start](#-quick-start)
+  - [Cold-Start SFT Stage](#cold-start-sft-stage)
+    - [Environment Setup](#1-environment-setup)
+    - [Fine-Tuning Model](#2-fine-tuning-model)
+  - [Progressive Alignment RL](#-Progressive-Alignment-RL)
+    - [Environment Setup](#1-environment-setup-1)
+    - [ARPO RL Training](#3-arpo-rl-training)
+  - [ARPO Evaluation](#-arpo-evaluation)
+    - [Setup vLLM Inference Environment](#1-setup-vllm-inference-environment)
+    - [Setup Evaluation Environment](#2-setup-evaluation-environment)
+    - [Configure and Run Evaluation](#3-configure-and-run-evaluation)
+    - [Calculate Metrics](#4-calculate-metrics)
+- [Citation](#-citation)
 
 
 ## 💡 Overview
@@ -105,11 +112,7 @@ Our SFT dataset consists of two parts: 200 pure text samples and 800 samples wit
 }
 ```
 
-Complete the path information in LLaMA-Factory-main/examples/train_full/qwen_sft_tool_star.yaml. The file content should be as follows:
-
-```bash
-example
-```
+Complete the path information and fill in the dataset path in ./examples/train_full/qwen2_5vl_full_sft.yaml. 
 
 After completing the information, you can fine-tune the model using the following command:
 ```bash
@@ -117,7 +120,7 @@ cd LLaMA-Factory-main
 bash ./examples/train_full/train_sft.sh
 ```
 
-### 🔥 Progressive RL Stage
+### 🔥 Progressive Alignment RL
 
 #### 1. Environment Setup
 you can install our additional environment as follow:
