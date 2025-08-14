@@ -1,7 +1,7 @@
 # [MathBook: Multi-Dimensional Rational Exploration for Incentivizing Visual Mathematical Reasoning](https://arxiv.org/pdf/2407.01284)
 
 <div align="center"> 
-hi
+
 ![Dataset](https://img.shields.io/badge/Dataset-MathBook-green)
 [![Paper](https://img.shields.io/badge/Paper-arXiv-b5212f.svg?logo=arxiv)](https://arxiv.org/abs/)
 [![Paper](https://img.shields.io/badge/Paper-Hugging%20Face-yellow?logo=huggingface)](https://huggingface.co/papers/)
