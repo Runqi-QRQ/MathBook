@@ -11,9 +11,6 @@
 ![Mathematical Reasoning](https://img.shields.io/badge/Task-Mathematical_Reasoning-red) 
 </div>
 
-<p align="center">
-    <img src="./assets/wemath-series.png" width="35%"> <br>
-</p>
 
 <p align="center">
 🤗 <a href="https://huggingface.co" target="_blank">MathBook-Standard</a> ｜
@@ -21,62 +18,157 @@
 🤗 <a href="https://huggingface.co" target="_blank">MathBook-RL-7B</a>
 </p>
 
-<h5 align="center"> If you like our project, please give us a star ⭐ on GitHub for the latest update.</h5>
+<p align="center">
+    <img src="./assets/wemath-series.png" width="90%"> <br>
+</p>
+
+---
+
+> 💥 💥 💥 Stay tuned for more updates! We are working on building native agentic model based on the Browser and more open-domain environments!
+
+- [**We-Math 2.0**](https://arxiv.org/abs/2407.01284) (Preprint 2025) - We-Math 2.0: A Versatile MathBook System for Incentivizing Visual Mathematical Reasoning
+- [**We-Math**](https://arxiv.org/abs/2407.01284) (ACL 2025) - We-Math: Does Your Large Multimodal Model Achieve Human-like Mathematical Reasoning?
+
 
 ## 📣 News
-  **[2023.7.2]** Our paper is now accessible at https://arxiv.org/abs/2407.01284.
-  
-  **[2024.7.2]** Our dataset is now accessible at [Huggingface Datasets](https://huggingface.co/datasets/We-Math/We-Math/).
-  
-  **[2024.7.2]** Our project homepage can be accessed at https://we-math.github.io/.
+
+**[2025.08.15]** 🌐 **We-Math 2.0** homepage is live at [we-math2.github.io](https://we-math2.github.io/). 
+
+**[2025.08.15]** 📄 **We-Math 2.0** paper is now available on [arXiv](https://arxiv.org/abs/2407.01284).
+
+**[2025.08.15]** 📦 **We-Math 2.0** dataset is now available on [Hugging Face Datasets](https://huggingface.co/datasets/We-Math/We-Math2.0).
+
+**[2025.05.16]** 🎉 We-Math is accepted by ACL 2025 🎉
+
+**[2025.02.20]** 🎉 We-Math is officially supported by [VLMEvalKit](https://github.com/open-compass/VLMEvalKit) for fast evalution 🚀.
+
+**[2024.07.02]** We-Math is accessible at https://arxiv.org/abs/2407.01284.
+
+**[2024.07.02]** The We-Math dataset is accessible at [Huggingface Datasets](https://huggingface.co/datasets/We-Math/We-Math/).
+
+**[2024.07.02]** The We-Math homepage can be accessed at https://we-math.github.io/.
 
 
-## Contents
-- [Overview](#overview)
-- [Quick Start](#quick-start)
-  - [Cold-Start SFT Stage](#cold-start-sft-stage)
-    - [1. Environment Setup](#1-environment-setup)
-    - [2. Fine-Tuning](#2-fine-tuning)
-  - [Progressive Alignment RL](#progressive-alignment-rl)
-    - [1. Environment Setup](#1-environment-setup-1)
-    - [2. RL Training](#2-rl-training)
-      - [2.1 Pre-aligned RL (MathBook-Standard)](#21-pre-aligned-rl-mathbook-standard)
-      - [2.2 Dynamic Scheduling RL (MathBook-Pro)](#22-dynamic-scheduling-rl-mathbook-pro)
+## 📑 Contents
 
+- [**Overview (We-Math 2.0)**](#overview)
+- [**Quick Start**](#quick-start) 
+- **Cold-Start SFT Stage**
+  - [1. Environment Setup (SFT)](#1-environment-setup-sft)
+  - [2. Fine-Tuning](#2-fine-tuning)
+- **Progressive Alignment RL**
+  - [1. Environment Setup (RL)](#1-environment-setup-rl)
+  - [2. RL Training](#2-rl-training)
+    - [2.1 Pre-aligned RL *(MathBook-Standard)*](#21-pre-aligned-rl-mathbook-standard)
+    - [2.2 Dynamic Scheduling RL *(MathBook-Pro)*](#22-dynamic-scheduling-rl-mathbook-pro)
+   
+---
 
-## 💡 Overview
-Inspired by human-like mathematical reasoning, we introduce We-Math, the first benchmark specifically designed to <b>explore the problem-solving principles beyond the end-to-end performance.</b> We meticulously collect and categorize 6.5K visual math problems, spanning 67 hierarchical knowledge concepts and 5 layers of knowledge granularity.
+## 💡 Overview (We-Math 2.0)
+
+**We-Math 2.0** is a unified system designed to comprehensively enhance the mathematical reasoning capabilities of Multimodal Large Language Models (MLLMs).  
+It integrates a **structured mathematical knowledge system**, **model-centric data space modeling**, and a **reinforcement learning (RL)-based training paradigm** to achieve both broad conceptual coverage and robust reasoning performance across varying difficulty levels.
+
+The key contributions of **We-Math 2.0** are fourfold:  
+1. **MathBook Knowledge System** — A five-level hierarchical structure encompassing *491 knowledge points* and *1,819 fundamental principles*.  
+2. **MathBook-Standard & MathBook-Pro** — MathBook-Standard ensures wide conceptual coverage and flexibility via dual expansion, while MathBook-Pro defines a **three-dimensional difficulty space** and generates *7 progressive variants per problem* for robust training.  
+3. **MathBook-RL** — A two-stage RL framework comprising *Cold-Start Fine-tuning* for knowledge-oriented chain-of-thought alignment, and *Progressive Alignment RL* with average-reward learning and dynamic data scheduling for gradual alignment across difficulty levels.  
+4. **MathBookEval** — A comprehensive benchmark covering all 491 knowledge points with diverse reasoning step distributions.
+
+Extensive experiments show that **MathBook-RL** consistently outperforms existing baselines on four widely-used benchmarks and achieves strong results on MathBookEval, demonstrating superior generalization in mathematical reasoning.
+
+---
+
+### MathBook Knowledge System
 
 <p align="center">
-    <img src="assets/fig_lun.png" alt="Overview diagram and the statistics of WE-MATH" style="width: 85%;" /> <br>
-    Overview diagram and the statistics of <b>We-Math</b>.
+    <img src="assets/ks.png" style="width: 85%;" />
 </p>
 
-We firstly <b>decompose composite problems into sub-problems</b> according to the required knowledge concepts and introduce a novel four-dimensional metric, namely <b>Insufficient Knowledge (IK)</b>, <b>Inadequate Generalization (IG)</b>, <b>Complete Mastery (CM)</b>, and <b>Rote Memorization (RM)</b> to hierarchically assess inherent issues in LMMs’ reasoning process.
+The **MathBook Knowledge System** is organized as a five-level hierarchy covering *491 knowledge points* and *1,819 fundamental principles*.  
+It is systematically derived from trusted sources such as Wikipedia and open-source textbooks, refined through hierarchical clustering, and further revised by human experts to ensure accuracy and completeness.
+
+You can visit our [project website](https://we-math2.github.io/#title-knowledge) to explore the complete knowledge system.
+
+---
+
+### MathBook-Standard
+
+Building on the MathBook Knowledge System, **MathBook-Standard** is a dataset featuring comprehensive principle-level knowledge annotations and carefully curated problems to ensure broad, balanced coverage across mathematical domains, with particular focus on underrepresented areas.
+
+To foster deeper conceptual understanding, MathBook-Standard employs a **dual-expansion strategy**:  
+- *multi-images per question*  
+- *multi-questions per image*  
+
+This enables the creation of diverse problem sets that promote conceptual flexibility and adaptability.
+
+Below, we present an example of the **multi-images-per-question** component of the dataset, which can be retrieved via its underlying knowledge principles.  
+You can view the full collection on our [project website](https://we-math2.github.io/#title-standard).
 
 <p align="center">
-    <img src="assets/3-example.png" alt="The pipeline of knowledge-based data decomposition (an example of a three-step problem in We-Math)." style="width: 65%;" /> <br>
-    The pipeline of knowledge-based data decomposition (an example of a three-step problem in We-Math).
+    <img src="assets/ms.png" style="width: 85%;" />
 </p>
+
+---
+
+### MathBook-Pro
+
+Building on the MathBook Knowledge System, **MathBook-Pro** introduces a pivotal **three-dimensional difficulty modeling framework** that systematically characterizes mathematical problem complexity from a **model-centric** perspective.  
+Each seed problem is positioned within a structured difficulty space defined by three orthogonal axes:
+
+- **Step Complexity** – Reasoning depth is quantified by the number of knowledge points involved. More complex variants incorporate additional intermediate conclusions, with the most advanced cases involving at least six knowledge points drawn from the MathBook Knowledge System.  
+- **Visual Complexity** – Additional elements such as auxiliary lines or altered geometric configurations are introduced via **GeoGebra**, while preserving the original core structure.  
+- **Contextual Complexity** – Concise mathematical statements are rephrased into richer real-world contexts or linguistically abstract scenarios, increasing the semantic and interpretive demands of the problem statement.
+
+By varying a single dimension at a time and progressively composing transformations across multiple dimensions, each seed problem is expanded into **seven progressive difficulty levels**.  
+This enables structured, gradual learning for MLLMs and creates a robust foundation for enhancing reasoning performance across varying levels of complexity.
+
+Below, we showcase the multi-level difficulty component of MathBook-Pro, illustrating its progressive design across the three complexity dimensions.
 
 <p align="center">
-    <img src="assets/metric_2.png" alt="The pipeline of knowledge-based data decomposition (left) and an example of the four-dimensional metrics for evaluating a two-step problem (right), using both loose and strict settings." style="width: 95%;" /> <br>
-    An example of the four-dimensional metrics for evaluating a two-step problem, using both loose and strict settings.
+    <img src="assets/mp.png" style="width: 85%;" />
 </p>
 
+You can visit our [project website](https://we-math.github.io/) to see the use of **MathBook-Pro** in the **Dynamic Scheduling RL** strategy.
 
-With We-Math, we conduct a thorough evaluation of existing LMMs in visual mathematical reasoning and reveal a negative correlation between solving step and problem-specific performance. We confirm the IK issue of LMMs can be effectively improved via knowledge augmentation strategy. More notably, <b>the primary challenge of GPT-4o has significantly transitioned from IK to IG, establishing it as the first LMM advancing towards the knowledge generalization stage.</b> In contrast, other LMMs exhibit a marked inclination towards Rote Memorization they correctly solve composite problems involving multiple knowledge concepts, yet fail in answering sub-problems. We anticipate that We-Math will open new pathways for advancements in visual mathematical reasoning for LMMs.
+---
+
+### Methodology
+
+**Cold-Start Fine-tuning.**  
+Supervised fine-tuning on **MathBook-Standard** (covering all 491 knowledge points), instilling awareness of the knowledge system and guiding knowledge-driven chain-of-thought reasoning.
+
+**Progressive Alignment RL.**  
+A curriculum-based RL procedure with two phases:
+
+**Pre-aligned RL.**  
+Using MathBook-Standard, where each group contains multiple variants of the same knowledge principle.
+A mean-based reward is computed over variants sharing the same knowledge principle, encouraging reasoning consistency and robustness based on knowledge mastery rather than individual instances.
+
+**Dynamic Scheduling RL.**  
+Using MathBook-Pro, each base problem $x_0=(q_0, a_0, I_0)$ follows a progressive trajectory that increases difficulty along knowledge, visual, and contextual dimensions:
+
+$$
+x_0 \to \phi_s(x_0) \to (\phi_s \circ \phi_v)(x_0) \to (\phi_s \circ \phi_c)(x_0) \to (\phi_s \circ \phi_v \circ \phi_c)(x_0)
+$$
+
+where $\phi_s$ adds knowledge points, $\phi_v$ increases visual complexity, and $\phi_c$ increases contextual abstraction.
+
+If the model fails at $\phi(x)$ after succeeding at $x$, we trigger incremental learning via an auxiliary set $\Delta(x,\phi)$ that isolates the newly introduced factor:
+
+- **Knowledge Increment Scheduling:** when failure is due to added knowledge in $\phi_s$, sample auxiliary problems $x'_0$ from MathBook-Standard targeting the new knowledge point(s).
+- **Modality Increment Scheduling:** when failure stems from added modality complexity ($\phi_v$ or $\phi_c$), guide the model through single-modality incremental problems that isolate the visual or contextual component.
 
 <p align="center">
-    <img src="assets/fig1_result.png" alt="pipeline of decomposition" style="width: 95%;" /> <br>
-    Overview of LMMs' performances on We-Math. Figures from left to right illustrates the (1) accuracy of different LMMs on various problem-solving steps, (2) the performance in different visual mathematics categories and (3) the result in knowledge based reasoning evaluation.
+    <img src="assets/method.png" style="width: 85%;" />
 </p>
+
 
 ## 🏃 Quick Start
 
 ### ❄️ Cold-Start SFT Stage
 
-#### 1. Environment Setup
+#### 1. Environment Setup (SFT)
 
 In this step, we will describe how to perform a cold start for the SFT stage using the [ms-swift](https://github.com/modelscope/ms-swift) repository. Please first set up the environment for ms-swift.
 
@@ -113,7 +205,7 @@ swift sft \
 
 ### 🔥 Progressive Alignment RL
 
-#### 1. Environment Setup
+#### 1. Environment Setup (RL)
 you can install our additional environment as follow:
 
 ```bash
@@ -148,28 +240,6 @@ python3 -m verl.trainer.main \
 python scripts/model_merger.py --local_dir checkpoints/easy_r1/exp_name/global_step_1/actor
 ```
 
-## 📝 Evaluation Piplines on MathBook-Eval
-
-### Response Generation 
-The models generate responses based on the given questions and images. Examples for generating responses from some LMMs are provided in the [evaluation](./evaluation). Our prompt specifies the format of answer generation to facilitate subsequent extraction of the answer using string matching. Please refer to the following template to prepare your result JSON files for subsequent evaluation.
-```json
-{
-    "ID": "3steps_165",
-    "split": "testmini",
-    "knowledge concept": "Area of Circles",
-    "question": "As shown in the figure, there is a circular flower bed. Mary walked from the northernmost point of the flower bed along the edge to the easternmost point, taking a total of 80 steps. It is known that Mary's average step length is 0.628 cm, what is the area of the flower bed (  ) m²?(π = 3.14)",
-    "option": "A. 200.96;B. 3215.36;C. 6280;D. 32; E. No correct answer",
-    "answer": "B",
-    "image_path": "3steps/image/165-3.png",
-    "key": "3steps_3",
-    "question number": 1575,
-    "knowledge concept description": "Area of ...",
-    "response": "<Thought process>: ... <Answer>: ..."
-}
-```
-### Score Calculation
-
-
 
 ## 📜 License
 
@@ -178,7 +248,7 @@ Our dataset are distributed under the [CC BY-NC 4.0](https://creativecommons.org
 
 ## 📄 Cite
 
-If you find **MathBook** useful for your your research and applications, please kindly cite using this BibTeX:
+If you find **We-Math 2.0** useful for your your research and applications, please kindly cite using this BibTeX:
 
 ```bibtex
 
