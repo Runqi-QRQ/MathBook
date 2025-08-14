@@ -31,20 +31,16 @@
 
 
 ## Table of Contents
-- [Overview](#-overview)
-- [Quick Start](#-quick-start)
+- [Overview](#overview)
+- [Quick Start](#quick-start)
   - [Cold-Start SFT Stage](#cold-start-sft-stage)
-    - [Environment Setup](#1-environment-setup)
-    - [Fine-Tuning Model](#2-fine-tuning-model)
-  - [Progressive Alignment RL](#-Progressive-Alignment-RL)
-    - [Environment Setup](#1-environment-setup-1)
-    - [ARPO RL Training](#3-arpo-rl-training)
-  - [ARPO Evaluation](#-arpo-evaluation)
-    - [Setup vLLM Inference Environment](#1-setup-vllm-inference-environment)
-    - [Setup Evaluation Environment](#2-setup-evaluation-environment)
-    - [Configure and Run Evaluation](#3-configure-and-run-evaluation)
-    - [Calculate Metrics](#4-calculate-metrics)
-- [Citation](#-citation)
+    - [1. Environment Setup](#1-environment-setup)
+    - [2. Fine-Tuning](#2-fine-tuning)
+  - [Progressive Alignment RL](#progressive-alignment-rl)
+    - [1. Environment Setup](#1-environment-setup-1)
+    - [2. RL Training](#2-rl-training)
+      - [2.1 Pre-aligned RL (MathBook-Standard)](#21-pre-aligned-rl-mathbook-standard)
+      - [2.2 Dynamic Scheduling RL (MathBook-Pro)](#22-dynamic-scheduling-rl-mathbook-pro)
 
 
 ## 💡 Overview
@@ -81,44 +77,38 @@ With We-Math, we conduct a thorough evaluation of existing LMMs in visual mathem
 
 #### 1. Environment Setup
 
-In this step, we will describe how to perform a cold start for the SFT stage using the Llama Factory repository. Please first set up the environment for Llama Factory.
+In this step, we will describe how to perform a cold start for the SFT stage using the [ms-swift](https://github.com/modelscope/ms-swift) repository. Please first set up the environment for ms-swift.
 
 ```bash
-git clone --depth 1 https://github.com/hiyouga/LLaMA-Factory.git
-cd LLaMA-Factory
-pip install -e ".[metrics]"
+pip install ms-swift -U
 ```
 #### 2. Fine-Tuning
 
-Our SFT dataset consists of two parts: 200 pure text samples and 800 samples with associated images. Download the SFT dataset from 🤗[MathBook-SFT](https://huggingface.co/datasets/) and place it in `LLaMA-Factory-main/data/sft_data.json`. Define the dataset in your dataset_info.json file as shown below:
+Our SFT dataset consists of two parts: 200 pure text samples and 800 samples with associated images. Download the SFT dataset from 🤗[MathBook-SFT](https://huggingface.co/datasets/) and refer to the script below for fine-tuning.
 
 ```bash
-{
-  "mathbook_sft_img": {
-    "file_name": "data/sft_img.jsonl",
-    "formatting": "sharegpt",
-    "columns": {
-      "messages": "conversations",
-      "images": "image"
-    }
-  },
-  "mathbook_sft_text": {
-    "file_name": "data/sft_text.jsonl",
-    "formatting": "sharegpt",
-    "columns": {
-      "messages": "conversations"
-    }
-  }
-}
+nproc_per_node=8
+NPROC_PER_NODE=$nproc_per_node \
+MASTER_PORT=29500 \
+MAX_PIXELS=4194304 \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+swift sft \
+    --model_type qwen2_5_vl \
+    --model Qwen/Qwen2.5-VL-7B-Instruct \
+    --num_train_epochs 1 \
+    --train_type full \
+    --deepspeed zero2 \
+    --tuner_backend peft \
+    --torch_dtype bfloat16 \
+    --weight_decay 0.1 \
+    --warmup_ratio 0.03 \
+    --eval_steps 1000 \
+    --attn_impl flash_attn \
+    --output_dir checkpoint \
+    --dataset mathbook_sft.jsonl \
+    --per_device_train_batch_size 1
 ```
 
-Complete the path information and fill in the dataset path in ./examples/train_full/qwen2_5vl_full_sft.yaml. 
-
-After completing the information, you can fine-tune the model using the following command:
-```bash
-cd LLaMA-Factory-main
-bash ./examples/train_full/train_sft.sh
-```
 
 ### 🔥 Progressive Alignment RL
 
@@ -131,18 +121,31 @@ pip install -r requirements.txt
 
 #### 2. RL Training
 
+Both RL stages are developed based on the [EasyR1](https://github.com/hiyouga/EasyR1) codebase to fit our workflow.
+
+For data preparation, you can directly download Parquet-format datasets from [🤗MathBook-Standard](https://huggingface.co) for training.
+
 ##### 2.1 Pre-aligned RL (MathBook-Standard)
 
 ```bash
-pip install -r requirements.txt
+cd pre_align
+
+python3 -m verl.trainer.main \
+    config=pre_align_r1v.yaml \
 ```
 
 ##### 2.2 Dynamic Scheduling RL (MathBook-Pro)
 
 ```bash
-pip install -r requirements.txt
-```
+cd dynamic_scheduling
 
+python3 -m verl.trainer.main \
+    config=dynamic_scheduling_r1v.yaml \
+```
+#### Merge Checkpoint in Hugging Face Format
+```bash
+python scripts/model_merger.py --local_dir checkpoints/easy_r1/exp_name/global_step_1/actor
+```
 
 ## 📝 Evaluation Piplines on MathBook-Eval
 
@@ -164,52 +167,7 @@ The models generate responses based on the given questions and images. Examples 
 }
 ```
 ### Score Calculation
-Due to the multiple-choice question format of our dataset and the specific answer generation prompt, we use string matching to directly extract answers, which eliminates the high cost of using additional models for further answer extraction.  The extracted answer is normalized to an option letter and calculate scores on our proposed four-dimensional metrics in [four_dimensional_metrics.py](https://github.com/We-Math/We-Math/blob/main/evaluation/four_dimensional_metrics.py).
-```sh
-cd evaluation
 
-python four_dimensional_metrics_refine.py \
---model_name GPT-4o \
---output_json ../output/GPT-4o.json  \
---main_results_csv_path ../result/four_dimensional_metrics.csv
-```
-
-Performences on One-Step / Two-Step / Three-Step problems and different problem domains are obtained from [accuracy.py](https://github.com/We-Math/We-Math/blob/main/evaluation/accuracy.py).
-
-```sh
-cd evaluation
-
-python accuracy.py \
---model_name GPT-4o \
---output_json ../output/GPT-4o.json  \
---knowledge_structure_nodes_path /data/knowledge_structure_nodes.json \
-```
-
-
-## 📊 We-Math Dataset
-
-### Metric for Reasoning Evaluation
-Based on the decomposed multi-step problems, we further reveal the inherent issues of LMMs in problem-solving process. We feed both the M one-step sub-problems and the original problem into LMMs, and classifying the responses into four categories
-1. Insufficient Knowledge (IK): Part of one-step problems contain errors, and the multi-step problem is wrong. It is reasonable because model's insufficient grasp of single knowledge concept may lead to errors in multi-step problem.
-2. Inadequate Generalization (IG): One-Step problems are all correct, but the multi-step problem is incorrect. This is also considered reasonable. While LMMs are capable of understanding individual knowledge concepts, they may struggle to generalize that knowledge to solve composite problems.
-3. Complete Mastery (CM): One-Step problems are all correct, and multi-step problem is also answered correctly. This result demonstrates that the model's results are both reliable and accurate.
-4. Rote Memorization (RM): One-Step problems contain errors, but the multi-step problem is answered correctly, which contradicts human logical thinking. If a model can solve composite multi-step problems but fails to answer the one-step problems needed in the process, it raises doubts about the model's reliability.
-
-### Exmaples
-<details>
-<summary>🔍Examples of samples.</summary>
-<p align="center">
-    <img src="assets/example-2.png" width="90%"> <br>
-</p>
-</details>
-
-### Knowledge cards
-<details>
-<summary>🔍Examples of Knowledge cards.</summary>
-<p align="center">
-    <img src="assets/example-card.png" width="90%"> <br>
-</p>
-</details>
 
 
 ## 📜 License
