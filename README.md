@@ -1,6 +1,7 @@
-# [MathBook: Multi-Dimensional Rational Exploration for Incentivizing Visual Mathematical Reasoning](https://arxiv.org/pdf/2407.01284)
 
 <div align="center"> 
+
+## [We-Math 2.0: A Versatile MathBook System for Incentivizing Visual Mathematical Reasoning](https://arxiv.org/pdf/2407.01284) 
 
 ![Dataset](https://img.shields.io/badge/Dataset-MathBook-green)
 [![Paper](https://img.shields.io/badge/Paper-arXiv-b5212f.svg?logo=arxiv)](https://arxiv.org/abs/)
@@ -11,7 +12,7 @@
 </div>
 
 <p align="center">
-    <img src="./assets/logo-another.png" width="35%"> <br>
+    <img src="./assets/wemath-series.png" width="35%"> <br>
 </p>
 
 <p align="center">
@@ -30,7 +31,7 @@
   **[2024.7.2]** Our project homepage can be accessed at https://we-math.github.io/.
 
 
-## Table of Contents
+## Contents
 - [Overview](#overview)
 - [Quick Start](#quick-start)
   - [Cold-Start SFT Stage](#cold-start-sft-stage)
