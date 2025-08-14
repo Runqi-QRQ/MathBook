@@ -83,7 +83,27 @@ pip install -e ".[metrics]"
 ```
 #### 2. Fine-Tuning
 
-Download your SFT dataset from 🤗[MathBook-SFT](https://huggingface.co/datasets/) and place it in `LLaMA-Factory-main/data/sft_data.json`. Define the dataset in dataset_info.json.
+Our SFT dataset consists of two parts: 200 pure text samples and 800 samples with associated images. Download the SFT dataset from 🤗[MathBook-SFT](https://huggingface.co/datasets/) and place it in `LLaMA-Factory-main/data/sft_data.json`. Define the dataset in your dataset_info.json file as shown below:
+
+```bash
+{
+  "mathbook_sft_img": {
+    "file_name": "data/sft_img.jsonl",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations",
+      "images": "image"
+    }
+  },
+  "mathbook_sft_text": {
+    "file_name": "data/sft_text.jsonl",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations"
+    }
+  }
+}
+```
 
 Complete the path information in LLaMA-Factory-main/examples/train_full/qwen_sft_tool_star.yaml. The file content should be as follows:
 
@@ -103,17 +123,22 @@ bash ./examples/train_full/train_sft.sh
 you can install our additional environment as follow:
 
 ```bash
-example
+pip install -r requirements.txt
 ```
 
 #### 2. RL Training
 
 ##### 2.1 Pre-aligned RL (MathBook-Standard)
 
+```bash
+pip install -r requirements.txt
+```
+
 ##### 2.2 Dynamic Scheduling RL (MathBook-Pro)
 
-
-
+```bash
+pip install -r requirements.txt
+```
 
 
 ## 📝 Evaluation Piplines on MathBook-Eval
